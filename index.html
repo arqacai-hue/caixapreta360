@@ -304,6 +304,8 @@ td[contenteditable]:focus{background:rgba(201,164,90,.14)!important}
 /* ---------- RESPONSIVO ---------- */
 @media (max-width:900px){.ib .lbl{display:none}.ib{padding:0;width:38px}}
 @media (max-width:820px){
+  .bar,.drawer{backdrop-filter:none;-webkit-backdrop-filter:none}
+  #book .shadow{filter:none}
   .bar{height:52px;padding:0 10px;gap:6px}
   .bar .lg{width:28px}
   .bar .ttl b{font-size:15px}.bar .ttl span{font-size:9px;letter-spacing:.16em}
@@ -952,10 +954,11 @@ function setLeaves(target, instant){
   const dir = target>f?1:-1; const list=[];
   if(target>f) for(let i=f;i<target;i++) list.push(i); else for(let i=f-1;i>=target;i--) list.push(i);
   const many=list.length>2;
+  for(let i=Math.max(0,target-2);i<=Math.min(L-1,target+1);i++) leaves[i].style.display='';
   list.forEach((i,k)=>{
     const lf=leaves[i];
     setTimeout(()=>{
-      lf.style.zIndex=1000+k; lf.classList.add('turning');
+      lf.style.zIndex=1000+k; lf.classList.add('turning'); if(lf.style.display==='none'){lf.style.display='';lf.offsetWidth}
       if(many) lf.style.transitionDuration='.55s';
       lf.classList.toggle('flipped',dir>0);
       clearTimeout(lf._t); lf._t=setTimeout(()=>{lf.classList.remove('turning');lf.style.transitionDuration='';zs()},many?600:1100);
@@ -963,7 +966,7 @@ function setLeaves(target, instant){
   });
   f=target;
 }
-function zs(){leaves.forEach((l,i)=>{ if(l.classList.contains('turning')) return; l.style.zIndex = i<f ? i+1 : L-i+L })}
+function zs(){leaves.forEach((l,i)=>{ if(l.classList.contains('turning')) return; l.style.zIndex = i<f ? i+1 : L-i+L; l.style.display = (i>=f-2 && i<=f+1) ? '' : 'none' })}
 function go(p, instant){
   p=Math.max(1,Math.min(N,p|0));
   const nf = p===1?0: Math.floor(p/2);
@@ -1050,12 +1053,12 @@ function buildMenus(){
 
 /* ---------- poeira dourada ---------- */
 function dust(){
-  const c=$('#dust'),x=c.getContext('2d');let W,Hh,P=[];
-  const rs=()=>{W=c.width=innerWidth*devicePixelRatio;Hh=c.height=innerHeight*devicePixelRatio};rs();addEventListener('resize',rs);
+  const c=$('#dust'),x=c.getContext('2d');let W,Hh,P=[];const DPR=Math.min(devicePixelRatio||1,innerWidth<820?1.5:2);
+  const rs=()=>{W=c.width=innerWidth*DPR;Hh=c.height=innerHeight*DPR};rs();addEventListener('resize',rs);
   const n=innerWidth<820?40:90;
   for(let i=0;i<n;i++)P.push({x:Math.random(),y:Math.random(),r:Math.random()*1.6+.3,v:Math.random()*.00025+.00008,a:Math.random()*.5+.1,p:Math.random()*6});
   (function loop(t){x.clearRect(0,0,W,Hh);P.forEach(d=>{d.y-=d.v*(opened?.5:1);if(d.y<-.02)d.y=1.02;
-    const al=d.a*(.6+.4*Math.sin(t/900+d.p))*(opened?.45:1);x.beginPath();x.arc((d.x+Math.sin(t/4000+d.p)*.01)*W,d.y*Hh,d.r*devicePixelRatio,0,7);
+    const al=d.a*(.6+.4*Math.sin(t/900+d.p))*(opened?.45:1);x.beginPath();x.arc((d.x+Math.sin(t/4000+d.p)*.01)*W,d.y*Hh,d.r*DPR,0,7);
     x.fillStyle=`rgba(233,200,130,${al})`;x.fill()});requestAnimationFrame(loop)})(0);
 }
 
